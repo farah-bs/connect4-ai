@@ -4,12 +4,34 @@ import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.event.*;
 
-public class BoardDrawing extends JComponent {
+public class BoardDrawing  extends JComponent  {
     private GameState state;
     private Rectangle board;
     private Rectangle textBack;
     private String stateMessage;
     private ArrayList<Ellipse2D.Double> holes;
+
+    private Minimax minimax = new Minimax();
+    private AlphaBeta alphabeta = new AlphaBeta();
+    private MCTS mcts = new MCTS();
+
+    private TypeIA typeIaRed;
+    private TypeIA typeIaYellow;
+    private ModeDeJeu mode;
+
+    enum ModeDeJeu {
+        JOUEUR_VS_JOUEUR,
+        JOUEUR_VS_IA,
+        IA_VS_IA
+    }
+
+    enum TypeIA {
+        JOUEUR,
+        MINIMAX,
+        ALPHABETA,
+        MCTS
+    }
+
     final int BOARD_START_X = 182;
     final int BOARD_START_Y = 75;
     final int BOARD_WIDTH = 386;
@@ -23,42 +45,103 @@ public class BoardDrawing extends JComponent {
     public BoardDrawing(GameState gs) {
         this.state = gs;
 
-        // Initialisation graphique
+        Object[] options = {"Human", "Minimax", "AlphaBeta", "MCTS"};
+        int choixRed = JOptionPane.showOptionDialog(this, "Pick a player for RED ?", "Player 1",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        int choixYellow = JOptionPane.showOptionDialog(this, "Pick a player for YELLOW ?", "Player 2",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+        typeIaRed = TypeIA.values()[choixRed];
+        typeIaYellow = TypeIA.values()[choixYellow];
+
+        if (typeIaRed != TypeIA.JOUEUR && typeIaYellow != TypeIA.JOUEUR) {
+            mode = ModeDeJeu.IA_VS_IA;
+            lancerIAvsIA();
+        } else if (typeIaRed == TypeIA.JOUEUR && typeIaYellow == TypeIA.JOUEUR) {
+            mode = ModeDeJeu.JOUEUR_VS_JOUEUR;
+        } else {
+            mode = ModeDeJeu.JOUEUR_VS_IA;
+        }
+
         board = new Rectangle(BOARD_START_X, BOARD_START_Y, BOARD_WIDTH, BOARD_HEIGHT);
         textBack = new Rectangle(BOARD_START_X + (BOARD_WIDTH / 2) - 100, BOARD_START_Y - 50, 200, 40);
         holes = new ArrayList<>();
 
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 6; j++) {
-                Ellipse2D.Double hole = new Ellipse2D.Double(HOLE_START_X + i * HOLE_DISTANCE,
-                        HOLE_START_Y - j * HOLE_DISTANCE, HOLE_DIAMETER, HOLE_DIAMETER);
-                holes.add(hole);
+                holes.add(new Ellipse2D.Double(HOLE_START_X + i * HOLE_DISTANCE,
+                        HOLE_START_Y - j * HOLE_DISTANCE, HOLE_DIAMETER, HOLE_DIAMETER));
             }
         }
 
-        // ➕ Nouveau : rendre le plateau cliquable
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int mouseX = e.getX();
+        if (mode != ModeDeJeu.IA_VS_IA) {
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (state.getGameOver()) return;
 
-                if (mouseX < HOLE_START_X || mouseX > HOLE_START_X + 6 * HOLE_DISTANCE + HOLE_DIAMETER) {
-                    return; // en dehors de la grille
+                    int mouseX = e.getX();
+                    if (mouseX < HOLE_START_X || mouseX > HOLE_START_X + 6 * HOLE_DISTANCE + HOLE_DIAMETER) return;
+
+                    int col = (mouseX - HOLE_START_X) / HOLE_DISTANCE;
+
+                    if (!state.move(col + 1)) {
+                        JOptionPane.showMessageDialog(BoardDrawing.this, "Colonne pleine", "Erreur", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    repaint();
+
+                    if (!state.getGameOver()) {
+                        jouerIA();
+                    }
                 }
+            });
+        }
+    }
 
-                int col = (mouseX - HOLE_START_X) / HOLE_DISTANCE;
+    private void jouerIA() {
+        new Thread(() -> {
+            try { Thread.sleep(300); } catch (InterruptedException ignored) {}
 
-                boolean success = state.move(col + 1); // move prend 1 à 7
-                if (!success) {
-                    JOptionPane.showMessageDialog(BoardDrawing.this,
-                            "❌ La colonne " + (col + 1) + " est pleine !",
-                            "Coup invalide",
-                            JOptionPane.WARNING_MESSAGE);
-                }
-
-                repaint();
+            if (state.getGameOver()) {
+                SwingUtilities.invokeLater(this::repaint);
+                return;
             }
-        });
+
+            boolean redTurn = state.getRedsTurn();
+            TypeIA currentIA = redTurn ? typeIaRed : typeIaYellow;
+            int move = -1;
+
+            switch (currentIA) {
+                case MINIMAX:
+                    move = minimax.getBestMove(state.clone(), 6);
+                    break;
+                case ALPHABETA:
+                    move = alphabeta.getBestMove(state.clone(), 6);
+                    break;
+                case MCTS:
+                    move = mcts.getBestMove(state.clone(), 1000);
+                    break;
+                case JOUEUR:
+                    return;
+            }
+
+            if (move != -1) {
+                state.move(move);
+            }
+
+            SwingUtilities.invokeLater(() -> {
+                repaint();
+                if (mode == ModeDeJeu.IA_VS_IA && !state.getGameOver()) {
+                    jouerIA();
+                }
+            });
+        }).start();
+
+    }
+
+    private void lancerIAvsIA() {
+        jouerIA();
     }
 
     @Override
@@ -66,15 +149,12 @@ public class BoardDrawing extends JComponent {
         Graphics2D g2 = (Graphics2D) g;
         g2.setFont(new Font("TimesRoman", Font.BOLD, 20));
 
-        // Plateau
         g2.setColor(Color.blue);
         g2.fill(board);
 
-        // Trous
         g2.setColor(Color.white);
         for (Ellipse2D.Double hole : holes) g2.fill(hole);
 
-        // Numéros de colonnes
         g2.setColor(Color.black);
         for (int i = 0; i < 7; i++) {
             int w = g2.getFontMetrics().stringWidth(Integer.toString(i + 1));
@@ -83,7 +163,6 @@ public class BoardDrawing extends JComponent {
                     BOARD_START_Y + BOARD_HEIGHT + 25);
         }
 
-        // Messages d’état
         if (state.getRedWins()) {
             g2.setColor(Color.red);
             g2.fill(textBack);
@@ -115,19 +194,16 @@ public class BoardDrawing extends JComponent {
         int strX = BOARD_START_X + (BOARD_WIDTH - stringWidth) / 2;
         g2.drawString(stateMessage, strX, BOARD_START_Y - 22);
 
-        // Message d'erreur (texte interne)
         if (state.getError() != null) {
             g2.setColor(Color.black);
             g2.drawString("Oops!", 15, 220);
             g2.drawString(state.getError(), 15, 250);
         }
 
-        // Pions
         for (int i = 0; i < state.getPieces().length; i++) {
             for (int j = 0; j < state.getPieces()[0].length; j++) {
                 if (state.getPieces()[i][j] == null) continue;
-                else if (state.getPieces()[i][j]) g2.setColor(Color.red);
-                else g2.setColor(Color.yellow);
+                g2.setColor(state.getPieces()[i][j] ? Color.red : Color.yellow);
                 g2.fill(new Ellipse2D.Double(
                         HOLE_START_X + 2 + i * HOLE_DISTANCE,
                         HOLE_START_Y + 2 - j * HOLE_DISTANCE,
@@ -136,4 +212,23 @@ public class BoardDrawing extends JComponent {
             }
         }
     }
+
+    public boolean jouerCoupUtilisateur(int colonne) {
+        if (state.getGameOver()) return false;
+
+        boolean success = state.move(colonne);
+        repaint();
+
+        if (success && !state.getGameOver()) {
+            jouerIA();
+        }
+        return success;
+    }
+
+    public boolean undoDernierCoup() {
+        boolean success = state.undo();
+        repaint();
+        return success;
+    }
+
 }

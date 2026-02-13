@@ -4,13 +4,13 @@ import javax.swing.*;
 
 public class GUI {
     public static void main(String[] args) {
-        // Look & Feel moderne
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         } catch (Exception ignored) {}
 
         SwingUtilities.invokeLater(() -> createAndShowGUI());
     }
+
 
     private static void createAndShowGUI() {
         JFrame frame = new JFrame("Connect 4");
@@ -45,31 +45,36 @@ public class GUI {
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
 
-        JButton buttonUndo = new JButton("↩️ Undo");
-        buttonUndo.addActionListener(e -> {
-            boolean success = state.undo();
-            if (!success) {
-                JOptionPane.showMessageDialog(frame,
-                        "Aucun coup à annuler !",
-                        "Annulation impossible",
-                        JOptionPane.INFORMATION_MESSAGE);
-            }
-            board.repaint();
-        });
 
-        JButton buttonRestart = new JButton("🔄 Restart");
+
+        JButton buttonRestart = new JButton("New Game");
         buttonRestart.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(frame,
-                    "Voulez-vous vraiment recommencer la partie ?",
+                    "Do you really want to start a new game ?",
                     "Confirmation",
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                state.restart();
-                board.repaint();
+                frame.remove(board);
+                GameState newState = new GameState();
+                BoardDrawing newBoard = new BoardDrawing(newState);
+                frame.add(newBoard, BorderLayout.CENTER);
+                frame.revalidate();
+                frame.repaint();
             }
         });
 
-        controlPanel.add(buttonUndo);
+        JButton buttonQuit = new JButton("Quit");
+        buttonQuit.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(frame,
+                    "Do you really want to quit ?",
+                    "Confirmation",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
+        controlPanel.add(buttonQuit);
+
         controlPanel.add(buttonRestart);
 
         // Placement des composants

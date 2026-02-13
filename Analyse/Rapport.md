@@ -1,232 +1,228 @@
-# Rapport de Projet IA : Puissance 4
-Travail réalisé par : BEN SLAMA Farah
-
+# Connect 4 and AI Algorithms: Minimax, Alpha-Beta, and MCTS
 
 ## 1. Introduction
 
-Pour ce projet, j'ai choisi de travailler sur le jeu du Puissance 4, un classique des jeux de stratégie combinatoire. Il s’agit d’un jeu à deux joueurs à information complète, sans hasard, ce qui en fait un bon candidat pour l’étude d’algorithmes de recherche. L’objectif est d’implémenter et de comparer plusieurs algorithmes d’intelligence artificielle pour déterminer lequel est le plus performant dans ce contexte.
+For this project, I chose to work on the game **Connect 4**, a classic combinatorial strategy game. It is a two-player game with complete information and no randomness, making it a good candidate for studying search algorithms. The goal is to implement and compare several AI algorithms to determine which performs best in this context.
 
-Les algorithmes implémentés puis évalués sont :
+The implemented and evaluated algorithms are:
 - Minimax
-- Alpha-Bêta (optimisation du Minimax)
+- Alpha-Beta (optimized Minimax)
 - MCTS (Monte Carlo Tree Search)
 
-## 2. Présentation du jeu
+## 2. Game Overview
 
-Le Puissance 4 est un jeu de stratégie combinatoire abstrait. Il se joue sur une grille de 7 colonnes et 6 lignes. À tour de rôle, chaque joueur dépose un jeton de sa couleur dans une colonne de son choix. Le jeton tombe alors dans la position libre la plus basse de la colonne.
+Connect 4 is an abstract combinatorial strategy game played on a 7-column by 6-row grid. Players take turns dropping a token of their color into a column of their choice. The token falls to the lowest free position in that column.
 
-Un joueur gagne s’il parvient à aligner 4 jetons horizontalement, verticalement ou diagonalement.
+A player wins by aligning 4 tokens horizontally, vertically, or diagonally.
 
-### 3 Fonction d’évaluation simple
+### 2.1 Simple Evaluation Function
 
-Cette fonction attribue des scores en fonction du nombre de pions alignés :
-* +1 pour deux alignés
-* +10 pour trois alignés
-* +100 pour quatre alignés (victoire)
+This function assigns scores based on the number of aligned tokens:
+* +1 for two in a row
+* +10 for three in a row
+* +100 for four in a row (win)
 
-## 4. Implémentation des algorithmes
+## 3. Algorithm Implementation
 
-### 4.1 Minimax
+### 3.1 Minimax
 
-L’algorithme explore récursivement les états possibles jusqu’à une profondeur fixée. À chaque niveau, le joueur cherche à maximiser ou minimiser la valeur selon qu’il est joueur max ou joueur min.
+The algorithm recursively explores possible game states up to a fixed depth. At each level, the player aims to maximize or minimize the value depending on whether they are the max or min player.
 
-### 4.2 Alpha-Bêta
+### 3.2 Alpha-Beta
 
-Cette version optimise Minimax en évitant d’explorer certaines branches inutiles grâce à des bornes alpha et bêta. Cela réduit significativement le nombre de noeuds explorés.
+This version optimizes Minimax by avoiding the exploration of unnecessary branches using alpha and beta bounds. This significantly reduces the number of nodes explored.
 
-### 4.3 MCTS (Monte Carlo Tree Search)
+### 3.3 MCTS (Monte Carlo Tree Search)
 
-MCTS repose sur quatre étapes :
-Sélection d’un noeud à explorer via l’UCB
-Expansion de l’arbre
-Simulation d’une partie aléatoire
-Rétropropagation du résultat
+MCTS works in four steps:
+- Selection of a node to explore via UCB
+- Tree expansion
+- Simulation of a random game
+- Backpropagation of the result
 
-L’algorithme privilégie les coups les plus prometteurs selon les statistiques de victoires simulées.
+The algorithm favors the most promising moves according to simulated win statistics.
 
-## 5. Interface de jeu
+## 4. Game Interface
 
-Une interface graphique a été développée en Java Swing. Elle permet :
-- de jouer humain contre humain/IA
-- de faire s’affronter deux IA
-- de choisir l’algorithme utilisé pour chaque joueur
-- de régler la profondeur (pour Minimax et Alpha-Bêta) ou le nombre de simulations (pour MCTS)
+A graphical interface was developed in Java Swing. It allows:
+- Human vs. human or human vs. AI play
+- AI vs. AI matches
+- Selecting the algorithm used for each player
+- Configuring depth (for Minimax and Alpha-Beta) or number of simulations (for MCTS)
 
-## 6. Expériences et résultats
-Afin d'avoir des résultats significatifs et comparables, j'ai doté chaque algorithme avec un hasard lors du choix des coups pour éviter la simulation de parties déterministes, inutiles pour l'évaluation des performances.
+## 5. Experiments and Results
 
-### 6.1 Comparaison Minimax vs Alpha-Bêta
+To obtain meaningful and comparable results, each algorithm incorporates randomness in move selection to avoid deterministic games, which are not useful for performance evaluation.
 
-Les tests effectués se trouvent dans le fichier `TestIAProfondeurMulti.java`.
-Ce fichier exécute automatiquement une série de parties de Puissance 4 entre deux intelligences artificielles : l'une utilisant Minimax, l'autre Alpha-Beta.
-Pour chaque combinaison de profondeurs d’algorithmes, plusieurs parties sont simulées afin d’évaluer leurs performances respectives selon plusieurs critères. Les résultats sont enregistrés dans le fichier resultats_ia.csv.
+### 5.1 Minimax vs Alpha-Beta
 
-Le programme mesure pour chaque configuration :
+Tests are in the file `TestIAProfondeurMulti.java`.  
+This file automatically runs a series of Connect 4 games between two AIs: one using Minimax and the other Alpha-Beta.  
+For each combination of algorithm depths, multiple games are simulated to evaluate performance based on several criteria. Results are saved in `resultats_ia.csv`.
 
-- le nombre de victoires pour Minimax et Alpha-Beta,
+The program measures for each configuration:
+- Number of wins for Minimax and Alpha-Beta
+- Number of draws
+- Average computation time per move for each AI (in ms)
+- Average number of nodes explored per game
 
-- le nombre de matchs nuls,
+Parameters:
+- Number of games simulated: 5
+- Depths tested: 2, 4, 6, 8
+- Algorithms compared:
+  * Minimax (red player)
+  * Alpha-Beta (yellow player)
 
-- le temps moyen de calcul par coup pour chaque IA (en ms),
+I ran simulations using multithreading to speed up the process, as depths 6 and 8 take a long time.
 
-- le nombre moyen de nœuds explorés par partie.
+Results are exported to `resultats_ia.csv`.
 
-Paramètres variés :
-- Nombre de parties simulées : 5
-
-- Profondeurs testées : 2, 4, 6, 8
-
-- Algorithmes comparés :
-* Minimax (joueur rouge)
-* Alpha-Beta (joueur jaune)
-
-J'ai effectué une exécution en multithread pour accélérer les simulations, vu que les profondeurs 6 et 8 prennent beaucoup de temps. 
-
-Les résultats sont exportés dans le fichier `resultats_ia.csv`.
-
-J'ai tracé les graphiques suivants pour visualiser les performances :
+Performance graphs:
 ![](tempsexec_minmax_alphabeta.png)
 ![](12.png)
 ![](13..png)
 
-## Temps d'exécution moyen
+## Average Execution Time
 
-Les courbes et heatmaps montrent que :
+The curves and heatmaps show:
 
-- Le temps d'exécution de l'algorithme Minimax augmente très rapidement avec la profondeur. À partir de la profondeur 4, il dépasse la seconde, et à profondeur 8, il atteint plusieurs minutes.
-- L'algorithme Alpha-Beta reste très rapide jusqu'à la profondeur 6. Même à profondeur 8, il reste beaucoup plus rapide que Minimax.
-- À profondeur équivalente, Alpha-Beta est en général entre 10 et 1000 fois plus rapide que Minimax.
+- Minimax execution time grows very quickly with depth. From depth 4, it exceeds 1 second, and at depth 8 it reaches several minutes.
+- Alpha-Beta remains very fast up to depth 6. Even at depth 8, it is much faster than Minimax.
+- At equal depth, Alpha-Beta is generally 10 to 1000 times faster than Minimax.
 
-=> Alpha-Beta est beaucoup plus efficace que Minimax en termes de temps de réponse. Il permet de chercher plus profondément tout en conservant un temps de décision compatible avec un jeu interactif.
+=> Alpha-Beta is much more efficient than Minimax in response time. It allows deeper searches while keeping decision time compatible with interactive play.
 
-## Nombre de nœuds explorés
+## Nodes Explored
 
-L’analyse du nombre de nœuds explorés révèle que :
+Analysis of nodes explored shows:
 
-- Minimax explore un nombre de nœuds qui augmente de façon exponentielle avec la profondeur. À profondeur 8, cela dépasse 50 millions de nœuds.
-- Alpha-Beta explore beaucoup moins de nœuds grâce à l’élagage. Il réduit l’espace de recherche d’un facteur de 10 à 100 selon les cas.
-- Plus la profondeur augmente, plus l’écart se creuse entre les deux algorithmes.
+- Minimax explores an exponentially growing number of nodes with depth. At depth 8, it exceeds 50 million nodes.
+- Alpha-Beta explores far fewer nodes due to pruning, reducing the search space by a factor of 10 to 100 depending on the case.
+- As depth increases, the gap between the two algorithms widens.
 
-=> Alpha-Beta est considérablement plus économe que Minimax dans l’exploration de l’arbre de jeu. Cela permet une meilleure scalabilité de l’algorithme.
+=> Alpha-Beta is considerably more efficient than Minimax in game tree exploration, allowing better scalability.
 
-## Taux de victoire
+## Win Rate
 
-L'analyse du taux de victoire montre que :
+Win rate analysis shows:
 
-- Lorsque les deux algorithmes jouent à profondeur égale, leurs performances sont similaires en termes de victoires.
-- Lorsque Alpha-Beta utilise une profondeur supérieure, il l’emporte régulièrement, même contre un Minimax qui explore plus lentement.
-- L’avantage stratégique d’Alpha-Beta se manifeste surtout lorsqu’il peut jouer plus profondément que son adversaire.
+- When both algorithms play at equal depth, performance is similar in terms of wins.
+- When Alpha-Beta uses higher depth, it regularly wins, even against a slower Minimax.
+- The strategic advantage of Alpha-Beta is especially visible when it can search deeper than its opponent.
 
-=> En plus d’être plus rapide, Alpha-Beta est capable de prendre de meilleures décisions lorsqu’on lui permet de jouer avec une profondeur plus importante.
+=> In addition to being faster, Alpha-Beta can make better decisions when allowed greater depth.
 
-D'après les résultats interprétés, on peut conclure que :
-- Alpha-Beta est plus rapide que Minimax à profondeur égale.
-- Il explore beaucoup moins de nœuds, ce qui permet d'augmenter la profondeur sans exploser les ressources.
-- Il obtient des performances similaires, voire supérieures, en termes de qualité de jeu.
+From the interpreted results, we can conclude:
+- Alpha-Beta is faster than Minimax at equal depth.
+- It explores far fewer nodes, allowing deeper search without exhausting resources.
+- It achieves similar or better performance in game quality.
 
-Ainsi, l’algorithme Alpha-Beta surpasse Minimax aussi bien en efficacité qu’en potentiel stratégique, ce qui en fait le choix recommandé pour un joueur IA dans un jeu comme Puissance 4.
+Thus, Alpha-Beta outperforms Minimax both in efficiency and strategic potential, making it the recommended choice for an AI player in a game like Connect 4.
 
+### 5.2 MCTS Parameter Analysis
 
-### 6.3 Analyse et variation des paramètres de l'algorithme MCTS
-Le fichier `TestMCTSStats.java` exécute une série de tests pour analyser les performances de l’algorithme MCTS selon différents paramètres.
+The file `TestMCTSStats.java` runs a series of tests to analyze MCTS performance under different parameters.
 
-Trois paramètres sont variés :
-- Le budget de simulations : 500, 1000, 5000
-- La profondeur maximale des simulations : 5, 10, 20
-- La constante d’exploration `C` : 0.5, √2, 3.0
+Three parameters are varied:
+- Simulation budget: 500, 1000, 5000
+- Maximum simulation depth: 5, 10, 20
+- Exploration constant `C`: 0.5, √2, 3.0
 
-Pour chaque combinaison :
-- Un état initial est généré.
-- Le meilleur coup est sélectionné via MCTS.
-- Les données suivantes sont mesurées : coup choisi, nombre de simulations, taux de victoire estimé, et temps d’exécution.
+For each combination:
+- An initial state is generated
+- The best move is selected via MCTS
+- The following data are measured: chosen move, number of simulations, estimated win rate, and execution time
 
-Les résultats sont exportés dans le fichier `resultats_mcts.csv`.
+Results are exported to `resultats_mcts.csv`.
 
-J'ai tracé les graphiques suivants pour visualiser les performances :
+Performance graphs:
 ![](mcts1.png)
 ![](mcts2.png)
 ![](mcts3.png)
 ![](mcts4.png)
 ![](mcts5.png)
 
-Les figures présentées illustrent l'effet des différents paramètres de l'algorithme Monte Carlo Tree Search (MCTS) sur les performances observées, mesurées par le taux de victoire (WinRate).
+The figures illustrate the effect of different MCTS parameters on observed performance (measured by WinRate).
 
-* Impact du Budget (nombre de simulations autorisées)
+* **Impact of Budget (number of allowed simulations)**
 
-L'augmentation du budget a un effet positif sur le taux de victoire, particulièrement pour des profondeurs de simulation faibles à moyennes :
-- A SimDepth = 5, le gain est marginal mais présent.
-- A SimDepth = 10, l'amélioration est plus significative.
-- A SimDepth = 20, les performances sont déjà bonnes même à budget faible, mais progressent encore légèrement.
+Increasing the budget positively affects win rate, especially for low to medium simulation depths:
+- At SimDepth = 5, gain is marginal but present
+- At SimDepth = 10, improvement is more significant
+- At SimDepth = 20, performance is already good even at low budget, but still slightly improves
 
-Cela montre que plus la profondeur est grande, plus MCTS exploite efficacement les simulations supplémentaires.
+This shows that higher depth allows MCTS to make better use of extra simulations.
 
-* Impact de la constante d'exploration C
+* **Impact of Exploration Constant C**
 
-On observe une tendance claire :
-- Une constante C plus faible (0.5) donne de meilleurs résultats à grande profondeur (SimDepth = 20), suggérant que l’exploitation des nœuds prometteurs est préférable dans un budget contraint.
-- A l'inverse, des constantes plus élevées pénalisent la performance à faible profondeur.
+Clear trends:
+- A lower C (0.5) gives better results at high depth (SimDepth = 20), suggesting exploitation of promising nodes is preferable under a constrained budget
+- Higher C values reduce performance at low depth
 
-Cela confirme l'importance du réglage fin de C : plus C est grand, plus MCTS explore au risque de négliger l'exploitation locale.
+This confirms the importance of fine-tuning C: higher C values favor exploration but may neglect local exploitation.
 
-* Temps d'exécution et efficacité
+* **Execution Time and Efficiency**
 
-Le scatter plot entre Time(ms) et WinRate indique :
-- Un nuage de points relativement cohérent pour SimDepth = 20, où MCTS reste efficace même en augmentant le temps de simulation.
-- A SimDepth = 5, des temps plus longs n’apportent pas d'amélioration significative du taux de victoire.
+Scatter plot between Time(ms) and WinRate shows:
+- A relatively coherent cluster for SimDepth = 20, where MCTS remains effective even with increased simulation time
+- At SimDepth = 5, longer times do not significantly improve win rate
 
-Cela montre que l’effort de calcul est mieux rentabilisé à grande profondeur.
+This shows that computation is better utilized at higher depths.
 
-* Heatmap WinRate selon Budget et SimDepth
+* **Heatmap of WinRate vs Budget and SimDepth**
 
-Cette carte montre clairement que :
-- A budget fixe, augmenter SimDepth améliore nettement le taux de victoire.
-- A Budget = 5000 et SimDepth = 20, on atteint les meilleurs scores, confirmant l’effet cumulé des deux facteurs.
+- At fixed budget, increasing SimDepth clearly improves win rate
+- Budget = 5000 and SimDepth = 20 achieves the best scores, confirming the combined effect of both factors
 
-* Nombre de simulations effectives
+* **Effective Number of Simulations**
 
-Le graphique montre une forte corrélation entre le nombre réel de simulations et le taux de victoire, en particulier pour SimDepth = 20.
-- A faible profondeur, même un grand nombre de simulations ne suffit pas à compenser le manque d’information stratégique.
+Graph shows a strong correlation between actual simulations and win rate, especially for SimDepth = 20
+- At low depth, even a large number of simulations cannot compensate for lack of strategic information
 
-Ainsi on peut conclure que :
-- La profondeur de simulation est le facteur le plus déterminant sur la qualité du jeu.
-- Le budget améliore les résultats surtout si la profondeur est suffisante.
-- La constante C doit être ajustée finement ; une valeur modérée (comme racine de 2) reste un bon compromis.
-- Le temps de calcul est mieux utilisé si la profondeur est élevée.
+Conclusions:
+- Simulation depth is the most important factor in game quality
+- Budget improves results mainly if depth is sufficient
+- C should be carefully adjusted; a moderate value (like √2) is a good compromise
+- Computation time is better utilized at high depth
 
-Ces résultats confirment la puissance de MCTS lorsque ses paramètres sont bien calibrés, notamment en maximisant la profondeur tout en maintenant un budget suffisant.
+These results confirm MCTS’s power when well-tuned, especially maximizing depth while maintaining sufficient budget.
 
-## MCTS vs Alpha-Bêta vs Minimax
-Pour évaluer les performances des algorithmes d’intelligence artificielle implémentés dans le cadre de ce projet de Puissance 4, une série d’expériences automatiques a été menée. Ces expériences consistent à faire s'affronter différentes IA entre elles dans des parties simulées, selon des combinaisons de paramètres variés (profondeur pour Minimax et Alpha-Bêta, budget de simulations pour MCTS).
+## 5.3 MCTS vs Alpha-Beta vs Minimax
 
-Méthodologie
+To evaluate AI performance in this Connect 4 project, automated experiments were conducted. These consist of making different AIs play against each other in simulated games with varied parameters (depth for Minimax/Alpha-Beta, simulation budget for MCTS).
 
-Chaque match oppose deux IA : une jouant en rouge, l’autre en jaune. Pour chaque partie jouée, les informations suivantes sont enregistrées dans un fichier CSV :
-- le nom de chaque algorithme,
-- sa configuration (profondeur ou budget),
-- le vainqueur (Rouge, Jaune, ou Match nul),
-- le temps d’exécution total pour chaque IA (en millisecondes),
-- le nombre de nœuds explorés ou simulations effectuées.
+**Methodology**
 
-Les tests couvrent :
-- toutes les combinaisons de Minimax, Alpha-Bêta et MCTS en tant que joueur rouge ou jaune ;
-- plusieurs niveaux de profondeur (2, 4, 6) pour Minimax et Alpha-Bêta ;
-- plusieurs budgets de simulations (100 à 5000) pour MCTS ;
-- un nombre fixe de 5 parties par configuration.
+Each match has one AI playing red and the other yellow. For each game, the following are recorded in a CSV:
+- Algorithm name
+- Configuration (depth or budget)
+- Winner (Red, Yellow, or Draw)
+- Total execution time per AI (ms)
+- Number of nodes explored or simulations performed
 
-Résultats partiels et hypothèses
+Tests cover:
+- All combinations of Minimax, Alpha-Beta, and MCTS as red or yellow player
+- Multiple depths (2, 4, 6) for Minimax and Alpha-Beta
+- Simulation budgets from 100 to 5000 for MCTS
+- Fixed 5 games per configuration
 
-Par faute de temps, les analyses statistiques complètes (moyennes, écarts-types, heatmaps de performance) n'ont pas pu être réalisées. Cependant, des observations qualitatives et des hypothèses peuvent être formulées :
+**Partial Results and Hypotheses**
 
-- Minimax, sans élagage, explore un très grand nombre de nœuds à partir de la profondeur 4, ce qui provoque des temps d'exécution élevés et rend les profondeurs supérieures coûteuses.
-- Alpha-Bêta montre un comportement similaire à Minimax en termes de qualité de jeu, mais réduit significativement le nombre de nœuds explorés grâce à l'élagage, surtout en profondeur 4 ou plus.
-- MCTS semble plus rapide que Minimax et Alpha-Bêta à profondeur/budget égal, notamment pour des budgets modérés (100 à 1000), mais reste plus aléatoire. Sa performance dépend fortement du nombre de simulations autorisées.
+Due to time constraints, full statistical analysis (averages, standard deviations, performance heatmaps) was not performed. Qualitative observations and hypotheses:
 
-On peut raisonnablement supposer que :
-- à budget ou profondeur faible, MCTS peut être compétitif voire supérieur à Minimax et Alpha-Bêta, notamment par sa capacité à échantillonner intelligemment.
-- à profondeur élevée, Alpha-Bêta devient clairement plus efficace que Minimax grâce à la réduction du nombre de nœuds.
-- Minimax brut est rapidement dépassé en efficacité par les deux autres algorithmes dès que la profondeur augmente.
+- Minimax without pruning explores a very large number of nodes from depth 4, causing high execution times
+- Alpha-Beta behaves similarly in game quality but drastically reduces nodes explored via pruning, especially at depth ≥4
+- MCTS seems faster than Minimax and Alpha-Beta at equal depth/budget, especially for moderate budgets (100–1000), but remains more stochastic. Performance depends on allowed simulations.
 
-Le code associé est disponible dans le fichier `TestIAProfondeurMulti.java`.
+Reasonable assumptions:
+- At low budget or depth, MCTS can compete or outperform Minimax/Alpha-Beta due to smart sampling
+- At high depth, Alpha-Beta becomes clearly more efficient than Minimax
+- Raw Minimax is quickly surpassed by both other algorithms as depth increases
 
-## 7. Conclusion
-Ce projet a permis de mieux comprendre les stratégies de recherche dans les jeux à information complète. Alpha-Bêta montre des performances supérieures à Minimax grâce à la coupure. MCTS apporte une approche statistique efficace, notamment pour les profondeurs importantes.
+The associated code is available in `TestIAProfondeurMulti.java`.
+
+## 6. Conclusion
+
+This project helped better understand search strategies in perfect-information games.  
+- Alpha-Beta outperforms Minimax thanks to pruning  
+- MCTS provides an effective statistical approach, especially for higher depths

@@ -1,6 +1,4 @@
 # Connect 4 and AI Algorithms: Minimax, Alpha-Beta, and MCTS
-# AI Project Report: Connect 4
-Work done by: Farah Ben Slama
 
 ## 1. Introduction
 

@@ -1,4 +1,6 @@
 # Connect 4 and AI Algorithms: Minimax, Alpha-Beta, and MCTS
+# AI Project Report: Connect 4
+Work done by: Farah Ben Slama
 
 ## 1. Introduction
 
@@ -78,9 +80,9 @@ I ran simulations using multithreading to speed up the process, as depths 6 and 
 Results are exported to `resultats_ia.csv`.
 
 Performance graphs:
-![](tempsexec_minmax_alphabeta.png)
-![](12.png)
-![](13..png)
+![](Analyse/tempsexec_minmax_alphabeta.png)
+![](Analyse/12.png)
+![](Analyse/13..png)
 
 ## Average Execution Time
 
@@ -136,11 +138,11 @@ For each combination:
 Results are exported to `resultats_mcts.csv`.
 
 Performance graphs:
-![](mcts1.png)
-![](mcts2.png)
-![](mcts3.png)
-![](mcts4.png)
-![](mcts5.png)
+![](Analyse/mcts1.png)
+![](Analyse/mcts2.png)
+![](Analyse/mcts3.png)
+![](Analyse/mcts4.png)
+![](Analyse/mcts5.png)
 
 The figures illustrate the effect of different MCTS parameters on observed performance (measured by WinRate).
 
